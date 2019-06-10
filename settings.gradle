@@ -1,0 +1,6 @@
+rootProject.name = 'VertxClusterPolyglotPoc'
+include 'JavaMicro'
+include 'ScalaMicro'
+include 'JavascriptMicro'
+include 'gatling'
+

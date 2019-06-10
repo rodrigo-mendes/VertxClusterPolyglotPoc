@@ -1,0 +1,72 @@
+plugins {
+    id 'scala'
+    id 'java'
+    id 'idea'
+    id 'application'
+    id 'com.github.johnrengelman.shadow' version '5.0.0'
+}
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+    jcenter()
+    maven {
+        url "https://oss.sonatype.org/content/repositories/iovertx-3831/"
+    }
+}
+
+dependencies {
+    //VERTX
+    compile 'io.vertx:vertx-hazelcast:3.7.1'
+    compile 'io.vertx:vertx-core:3.7.1'
+    compile 'ch.qos.logback:logback-classic:1.2.3'
+
+    //VERTX for Scala
+    compile "io.vertx:vertx-lang-scala_2.12:3.7.1"
+//    compile "io.vertx:vertx-lang-scala-stack_2.12:3.7.1"
+    compile 'io.vertx:vertx-service-discovery-scala_2.12:3.7.1'
+    compile 'io.vertx:vertx-web-scala_2.12:3.7.1'
+    compile group: 'io.vertx', name: 'vertx-jdbc-client-scala_2.12', version: '3.7.1'
+    compile group: 'io.vertx', name: 'vertx-mongo-client-scala_2.12', version: '3.7.1'
+
+    //SCALA
+    compile "org.scala-lang:scala-library:2.12.1"
+    
+    compile group: 'com.h2database', name: 'h2', version: '1.4.199'
+
+    //TESTING
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+    testCompile group: 'io.vertx', name: 'vertx-junit5', version: '3.7.1'
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.3.2")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.3.2")
+}
+
+mainClassName = "io.vertx.core.Launcher"
+def mainVerticle = "scala:io.everis.inno.vertx.deployer.ScalaDeployer"
+
+runShadow {
+    args = ["run", mainVerticle, "-cluster", "-instances", "1"]
+    systemProperties['vertx.logger-delegate-factory-class-name'] = 'io.vertx.core.logging.SLF4JLogDelegateFactory'
+}
+//
+//mainClassName = 'io.vertx.core.Launcher'
+//def mainVerticleName = 'io.vertx.example.HelloWorldVerticle'
+//// Vert.x watches for file changes in all subdirectories
+//// of src/ but only for files with .java extension
+//def watchForChange = 'src/**/*.java'
+//// Vert.x will call this task on changes
+//def doOnChange = './gradlew classes'
+//run {
+//    args = ['run', mainVerticleName, "--redeploy=$watchForChange", "--launcher-class=$mainClassName", "--on-redeploy=$doOnChange"]
+//}
+
+shadowJar {
+    mergeServiceFiles {
+        include 'META-INF/services/io.vertx.core.spi.VerticleFactory'
+    }
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '5.4.1'
+}
